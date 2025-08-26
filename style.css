@@ -1,0 +1,16 @@
+body {
+    background-color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* This centers our player on the page */
+}
+
+.cassette-player {
+    width: 300px;
+    height: 450px;
+    background-color: #a0a0a0; /* A simple grey for now */
+    border-radius: 15px; /* Gives it rounded corners */
+    border: 2px solid #555;
+    box-shadow: 5px 5px 10px rgba(0,0,0,0.5); /* A simple shadow */
+}
