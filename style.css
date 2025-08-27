@@ -75,3 +75,14 @@ body {
 .control-btn:hover {
     background-color: #444;
 }
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.reel.playing {
+  animation: spin 2s linear infinite;
+}
