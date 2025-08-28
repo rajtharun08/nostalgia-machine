@@ -86,3 +86,19 @@ body {
 .reel.playing {
   animation: spin 2s linear infinite;
 }
+.progress-container {
+    background: #222;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 20px 20px;
+    height: 8px;
+    width: calc(100% - 40px);
+}
+
+.progress {
+    background-color: #f5c518; /* A nice golden color */
+    border-radius: 5px;
+    height: 100%;
+    width: 0%; /* Starts at 0 */
+    transition: width 0.1s linear;
+}
