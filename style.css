@@ -6,23 +6,46 @@ body {
     height: 100vh;
     margin: 0;
     font-family: sans-serif;
+    overflow: hidden; /* Hide scrollbars */
+}
+
+.bg-image {
+    position: absolute;
+    top: -30px;
+    left: -30px;
+    width: calc(100vw + 60px);
+    height: calc(100vh + 60px);
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px) brightness(0.6);
+    transition: background-image 0.5s ease-in-out;
 }
 
 .cassette-player {
-    width: 300px;
-    height: 450px;
-    background-color: #a0a0a0;
+    width: 320px;
+    height: 580px;
+    background-color: rgba(160, 160, 160, 0.85);
+    backdrop-filter: blur(10px);
     border-radius: 15px;
     border: 2px solid #555;
-    box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.6);
     display: flex;
     flex-direction: column;
 }
 
+.visualizer {
+    width: calc(100% - 40px);
+    height: 80px;
+    margin: 20px 20px 0;
+    border-radius: 8px;
+    background-color: rgba(0,0,0,0.3);
+}
+
 .cassette-window {
-    height: 150px;
+    height: 100px;
     background-color: #222;
-    margin: 20px;
+    margin: 10px 20px 0;
     border-radius: 8px;
     border: 1px solid #111;
     box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8);
@@ -32,8 +55,8 @@ body {
 }
 
 .reel {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     background-color: #1a1a1a;
     border: 2px solid #555;
     border-radius: 50%;
@@ -44,24 +67,47 @@ body {
 }
 
 .spoke {
-    width: 8px;
+    width: 6px;
     height: 100%;
     background-color: #333;
     position: absolute;
 }
 
-.spoke:nth-child(2) {
-    transform: rotate(60deg);
+.spoke:nth-child(2) { transform: rotate(60deg); }
+.spoke:nth-child(3) { transform: rotate(-60deg); }
+
+.playlist {
+    margin: 10px 20px 0;
+    padding: 0;
+    list-style: none;
+    height: 100px;
+    overflow-y: auto;
+    background-color: rgba(0,0,0,0.1);
+    border: 1px solid #555;
 }
 
-.spoke:nth-child(3) {
-    transform: rotate(-60deg);
+.song-item {
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #222;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.song-item:hover {
+    background-color: rgba(0,0,0,0.2);
+}
+
+.song-item.playing {
+    background-color: #f5c518;
+    font-weight: bold;
+    animation: pulse 1.5s infinite;
 }
 
 #title {
     color: #222;
     text-align: center;
-    margin: 0 20px 10px;
+    margin: 10px 20px;
     font-size: 16px;
     font-weight: bold;
     text-transform: capitalize;
@@ -71,7 +117,7 @@ body {
     background: #222;
     border-radius: 5px;
     cursor: pointer;
-    margin: 10px 20px;
+    margin: 0 20px 10px;
     height: 8px;
     width: calc(100% - 40px);
 }
@@ -87,7 +133,8 @@ body {
 .controls {
     display: flex;
     justify-content: center;
-    padding: 20px;
+    align-items: center;
+    padding: 10px 20px;
 }
 
 .control-btn {
@@ -102,24 +149,10 @@ body {
     box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
 }
 
-.control-btn:hover {
-    background-color: #444;
-}
+.control-btn:hover { background-color: #444; }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.reel.playing {
-  animation: spin 2s linear infinite;
-}
 .volume-slider {
-    -webkit-appearance: none; /* Override default CSS */
+    -webkit-appearance: none;
     appearance: none;
     width: 80px;
     height: 5px;
@@ -129,7 +162,6 @@ body {
     margin-left: 10px;
 }
 
-/* Style for the slider thumb */
 .volume-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -139,27 +171,18 @@ body {
     border-radius: 50%;
     cursor: pointer;
 }
-.playlist {
-    margin: 0 20px;
-    padding: 0;
-    list-style: none;
-    height: 100px; /* Give it a fixed height */
-    overflow-y: auto; /* Make it scrollable if there are many songs */
-    background-color: rgba(0,0,0,0.1);
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.song-item {
-    padding: 5px 10px;
-    cursor: pointer;
-    color: #222;
-    font-size: 14px;
+.reel.playing {
+  animation: spin 2s linear infinite;
 }
 
-.song-item:hover {
-    background-color: rgba(0,0,0,0.2);
-}
-
-.song-item.playing {
-    background-color: #f5c518; /* Same gold as progress bar */
-    font-weight: bold;
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(245, 197, 24, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(245, 197, 24, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 197, 24, 0); }
 }

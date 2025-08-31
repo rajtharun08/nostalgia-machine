@@ -1,9 +1,16 @@
-// State
+// --- STATE ---
 let isPlaying = false;
-const songs = ['music.mp3', 'another-song.mp3', 'a-third-song.mp3']; // Replace with your filenames
+// Note: Create an 'img' folder and add corresponding images for each song.
+const songs = [
+    { name: 'music.mp3', image: 'music.jpg' },
+    { name: 'another-song.mp3', image: 'another-song.jpg' },
+    { name: 'a-third-song.mp3', image: 'a-third-song.jpg' }
+];
 let songIndex = 0;
+let audioContext, audioSource, analyser;
 
-// Selectors
+// --- SELECTORS ---
+const bgImage = document.getElementById('bg-image');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
 const playPauseBtn = document.getElementById('play-pause-btn');
@@ -12,43 +19,64 @@ const progress = document.querySelector('.progress');
 const progressContainer = document.querySelector('.progress-container');
 const audio = document.getElementById('audio');
 const title = document.getElementById('title');
+const volumeSlider = document.getElementById('volume-slider');
+const playlist = document.getElementById('playlist');
+const visualizerCanvas = document.getElementById('visualizer');
+const canvasCtx = visualizerCanvas.getContext('2d');
 
-// Functions
+// --- FUNCTIONS ---
+function populatePlaylist() {
+  songs.forEach((song, index) => {
+    const songItem = document.createElement('div');
+    songItem.classList.add('song-item');
+    songItem.innerText = song.name.replace('.mp3', '').replaceAll('-', ' ');
+    songItem.addEventListener('click', () => {
+        songIndex = index;
+        loadSong(songs[songIndex]);
+        playSong();
+    });
+    playlist.appendChild(songItem);
+  });
+}
+
 function loadSong(song) {
-  title.innerText = song.replace('.mp3', '').replaceAll('-', ' ');
-  audio.src = `audio/${song}`;
+  title.innerText = song.name.replace('.mp3', '').replaceAll('-', ' ');
+  audio.src = `audio/${song.name}`;
+  bgImage.style.backgroundImage = `url(img/${song.image})`;
+
+  const songItems = document.querySelectorAll('.song-item');
+  songItems.forEach((item, index) => {
+    item.classList.toggle('playing', index === songIndex);
+  });
 }
 
 function playSong() {
+  if (!audioContext) {
+    setupAudioVisualizer();
+  }
   isPlaying = true;
-  playPauseBtn.querySelector('i.fas').classList.remove('fa-play');
-  playPauseBtn.querySelector('i.fas').classList.add('fa-pause');
+  playPauseBtn.querySelector('i.fas').classList.replace('fa-play', 'fa-pause');
   reels.forEach(reel => reel.classList.add('playing'));
   audio.play();
+  localStorage.setItem('nostalgia-player-isPlaying', 'true');
 }
 
 function pauseSong() {
   isPlaying = false;
-  playPauseBtn.querySelector('i.fas').classList.remove('fa-pause');
-  playPauseBtn.querySelector('i.fas').classList.add('fa-play');
+  playPauseBtn.querySelector('i.fas').classList.replace('fa-pause', 'fa-play');
   reels.forEach(reel => reel.classList.remove('playing'));
   audio.pause();
+  localStorage.setItem('nostalgia-player-isPlaying', 'false');
 }
 
 function prevSong() {
-  songIndex--;
-  if (songIndex < 0) {
-    songIndex = songs.length - 1;
-  }
+  songIndex = (songIndex - 1 + songs.length) % songs.length;
   loadSong(songs[songIndex]);
   playSong();
 }
 
 function nextSong() {
-  songIndex++;
-  if (songIndex > songs.length - 1) {
-    songIndex = 0;
-  }
+  songIndex = (songIndex + 1) % songs.length;
   loadSong(songs[songIndex]);
   playSong();
 }
@@ -58,78 +86,96 @@ function updateProgress(e) {
   if (duration) {
     const progressPercent = (currentTime / duration) * 100;
     progress.style.width = `${progressPercent}%`;
+    localStorage.setItem('nostalgia-player-currentTime', currentTime);
   }
 }
 
 function setProgress(e) {
   const width = this.clientWidth;
   const clickX = e.offsetX;
-  const duration = audio.duration;
+  const { duration } = audio;
   if (duration) {
     audio.currentTime = (clickX / width) * duration;
   }
 }
 
-// Event Listeners
+function setVolume() {
+  const volume = volumeSlider.value / 100;
+  audio.volume = volume;
+  localStorage.setItem('nostalgia-player-volume', volume);
+}
+
+function handleKeyPress(e) {
+    if (e.code === 'Space') {
+        e.preventDefault(); // Prevent page from scrolling
+        isPlaying ? pauseSong() : playSong();
+    } else if (e.code === 'ArrowRight') {
+        nextSong();
+    } else if (e.code === 'ArrowLeft') {
+        prevSong();
+    }
+}
+
+function setupAudioVisualizer() {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioSource = audioContext.createMediaElementSource(audio);
+    analyser = audioContext.createAnalyser();
+    audioSource.connect(analyser);
+    analyser.connect(audioContext.destination);
+    analyser.fftSize = 128;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    renderVisualizerFrame(dataArray, bufferLength);
+}
+
+function renderVisualizerFrame(dataArray, bufferLength) {
+    requestAnimationFrame(() => renderVisualizerFrame(dataArray, bufferLength));
+    analyser.getByteFrequencyData(dataArray);
+
+    canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+    const barWidth = (visualizerCanvas.width / bufferLength) * 2;
+    let x = 0;
+    for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i] / 2;
+        canvasCtx.fillStyle = `rgba(245, 197, 24, 0.8)`;
+        canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+    }
+}
+
+function loadFromLocalStorage() {
+    const savedSongIndex = localStorage.getItem('nostalgia-player-songIndex');
+    const savedVolume = localStorage.getItem('nostalgia-player-volume');
+    const savedCurrentTime = localStorage.getItem('nostalgia-player-currentTime');
+
+    if (savedSongIndex !== null) {
+        songIndex = parseInt(savedSongIndex, 10);
+    }
+    loadSong(songs[songIndex]);
+
+    if (savedVolume !== null) {
+        audio.volume = parseFloat(savedVolume);
+        volumeSlider.value = audio.volume * 100;
+    }
+
+    if (savedCurrentTime !== null) {
+        audio.currentTime = parseFloat(savedCurrentTime);
+    }
+}
+
+// --- EVENT LISTENERS ---
 playPauseBtn.addEventListener('click', () => (isPlaying ? pauseSong() : playSong()));
 prevBtn.addEventListener('click', prevSong);
 nextBtn.addEventListener('click', nextSong);
 audio.addEventListener('timeupdate', updateProgress);
-progressContainer.addEventListener('click', setProgress);
 audio.addEventListener('ended', nextSong);
-
-// Initial Load
-loadSong(songs[songIndex]);
-// At the top with your other selectors
-const volumeSlider = document.getElementById('volume-slider');
-
-// Function to set volume
-function setVolume() {
-  // The slider's value is 0-100, audio.volume is 0.0-1.0
-  audio.volume = volumeSlider.value / 100;
-}
-
-// Event Listener for volume
+audio.addEventListener('loadeddata', () => {
+    localStorage.setItem('nostalgia-player-songIndex', songIndex);
+});
+progressContainer.addEventListener('click', setProgress);
 volumeSlider.addEventListener('input', setVolume);
+window.addEventListener('keydown', handleKeyPress);
 
-// Set initial volume when the page loads
-setVolume();
-// At the top of your script
-const playlist = document.getElementById('playlist');
-
-// New Function to build the playlist display
-function populatePlaylist() {
-  songs.forEach((song, index) => {
-    const songItem = document.createElement('div');
-    songItem.classList.add('song-item');
-    songItem.innerText = song.replace('.mp3', '').replaceAll('-', ' ');
-
-    // Add click event to play the song
-    songItem.addEventListener('click', () => {
-        songIndex = index;
-        loadSong(songs[songIndex]);
-        playSong();
-    });
-
-    playlist.appendChild(songItem);
-  });
-}
-
-// Modify the loadSong function to highlight the active song
-function loadSong(song) {
-  title.innerText = song.replace('.mp3', '').replaceAll('-', ' ');
-  audio.src = `audio/${song}`;
-
-  // Highlight the correct song in the playlist
-  const songItems = document.querySelectorAll('.song-item');
-  songItems.forEach((item, index) => {
-    if (index === songIndex) {
-      item.classList.add('playing');
-    } else {
-      item.classList.remove('playing');
-    }
-  });
-}
-
-// Call the populatePlaylist function once at the start
+// --- INITIAL LOAD ---
 populatePlaylist();
+loadFromLocalStorage();
