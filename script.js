@@ -80,3 +80,56 @@ audio.addEventListener('ended', nextSong);
 
 // Initial Load
 loadSong(songs[songIndex]);
+// At the top with your other selectors
+const volumeSlider = document.getElementById('volume-slider');
+
+// Function to set volume
+function setVolume() {
+  // The slider's value is 0-100, audio.volume is 0.0-1.0
+  audio.volume = volumeSlider.value / 100;
+}
+
+// Event Listener for volume
+volumeSlider.addEventListener('input', setVolume);
+
+// Set initial volume when the page loads
+setVolume();
+// At the top of your script
+const playlist = document.getElementById('playlist');
+
+// New Function to build the playlist display
+function populatePlaylist() {
+  songs.forEach((song, index) => {
+    const songItem = document.createElement('div');
+    songItem.classList.add('song-item');
+    songItem.innerText = song.replace('.mp3', '').replaceAll('-', ' ');
+
+    // Add click event to play the song
+    songItem.addEventListener('click', () => {
+        songIndex = index;
+        loadSong(songs[songIndex]);
+        playSong();
+    });
+
+    playlist.appendChild(songItem);
+  });
+}
+
+// Modify the loadSong function to highlight the active song
+function loadSong(song) {
+  title.innerText = song.replace('.mp3', '').replaceAll('-', ' ');
+  audio.src = `audio/${song}`;
+
+  // Highlight the correct song in the playlist
+  const songItems = document.querySelectorAll('.song-item');
+  songItems.forEach((item, index) => {
+    if (index === songIndex) {
+      item.classList.add('playing');
+    } else {
+      item.classList.remove('playing');
+    }
+  });
+}
+
+// Call the populatePlaylist function once at the start
+populatePlaylist();
