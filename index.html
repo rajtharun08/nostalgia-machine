@@ -8,21 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
+    <div class="bg-image" id="bg-image"></div>
     <div class="cassette-player" id="player">
-        <!-- THEME BUTTON ADDED HERE -->
+        <div class="loading-indicator" id="loading-indicator">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
         <button class="theme-btn" id="theme-btn"><i class="fas fa-palette"></i></button>
-
+        <canvas id="visualizer" class="visualizer"></canvas>
         <div class="cassette-window">
-            <div class="reel">
-                <div class="spoke"></div>
-                <div class="spoke"></div>
-                <div class="spoke"></div>
-            </div>
-            <div class="reel">
-                <div class="spoke"></div>
-                <div class="spoke"></div>
-                <div class="spoke"></div>
-            </div>
+            <div class="reel"><div class="spoke"></div><div class="spoke"></div><div class="spoke"></div></div>
+            <div class="reel"><div class="spoke"></div><div class="spoke"></div><div class="spoke"></div></div>
         </div>
         <div id="playlist" class="playlist"></div>
         <h3 id="title">Song Title</h3>
@@ -30,20 +25,15 @@
             <div class="progress"></div>
         </div>
         <div class="controls">
-            <button class="control-btn" id="prev-btn">
-                <i class="fas fa-backward"></i>
-            </button>
-            <button class="control-btn" id="play-pause-btn">
-                 <i class="fas fa-play"></i>
-            </button>
-            <button class="control-btn" id="next-btn">
-                <i class="fas fa-forward"></i>
-            </button>
+            <button class="control-btn" id="prev-btn"><i class="fas fa-backward"></i></button>
+            <button class="control-btn" id="play-pause-btn"><i class="fas fa-play"></i></button>
+            <button class="control-btn" id="next-btn"><i class="fas fa-forward"></i></button>
             <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="75">
         </div>
     </div>
-    
-    <audio id="audio"></audio>
+
+    <audio id="audio" crossOrigin="anonymous"></audio>
+    <audio id="sfx-click" src="sfx/click.mp3" preload="auto"></audio>
     <script src="script.js"></script>
 </body>
 </html>
