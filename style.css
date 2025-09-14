@@ -1,3 +1,31 @@
+/* --- THEME VARIABLES --- */
+:root {
+    --player-bg: rgba(160, 160, 160, 0.85); /* Classic Grey */
+    --text-color: #222;
+    --control-bg: #333;
+    --control-hover: #444;
+    --highlight-color: #f5c518;
+    --window-bg: #222;
+}
+
+.theme-dark {
+    --player-bg: rgba(20, 20, 20, 0.85); /* Dark Mode */
+    --text-color: #eee;
+    --control-bg: #444;
+    --control-hover: #555;
+    --highlight-color: #00aaff;
+    --window-bg: #111;
+}
+
+.theme-pop {
+    --player-bg: rgba(255, 105, 180, 0.85); /* 80s Pop (Hot Pink) */
+    --text-color: #fff;
+    --control-bg: #3d0a27;
+    --control-hover: #5c113d;
+    --highlight-color: #f0ff00; /* Neon Yellow */
+    --window-bg: #1a0511;
+}
+
 body {
     background-color: #333;
     display: flex;
@@ -6,46 +34,47 @@ body {
     height: 100vh;
     margin: 0;
     font-family: sans-serif;
-    overflow: hidden; /* Hide scrollbars */
-}
-
-.bg-image {
-    position: absolute;
-    top: -30px;
-    left: -30px;
-    width: calc(100vw + 60px);
-    height: calc(100vh + 60px);
-    z-index: -1;
-    background-size: cover;
-    background-position: center;
-    filter: blur(20px) brightness(0.6);
-    transition: background-image 0.5s ease-in-out;
 }
 
 .cassette-player {
     width: 320px;
-    height: 580px;
-    background-color: rgba(160, 160, 160, 0.85);
+    height: 520px;
+    /* Use the CSS variable for the background */
+    background-color: var(--player-bg);
     backdrop-filter: blur(10px);
     border-radius: 15px;
     border: 2px solid #555;
     box-shadow: 5px 5px 15px rgba(0,0,0,0.6);
     display: flex;
     flex-direction: column;
+    position: relative; /* Needed for positioning the theme button */
+    transition: background-color 0.4s ease;
 }
 
-.visualizer {
-    width: calc(100% - 40px);
-    height: 80px;
-    margin: 20px 20px 0;
-    border-radius: 8px;
-    background-color: rgba(0,0,0,0.3);
+/* --- THEME BUTTON STYLE --- */
+.theme-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--control-bg);
+    color: #ccc;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* --- ALL OTHER STYLES UPDATED TO USE VARIABLES --- */
 .cassette-window {
-    height: 100px;
-    background-color: #222;
-    margin: 10px 20px 0;
+    height: 150px;
+    background-color: var(--window-bg);
+    margin: 20px 20px 0;
     border-radius: 8px;
     border: 1px solid #111;
     box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8);
@@ -53,136 +82,22 @@ body {
     justify-content: space-around;
     align-items: center;
 }
-
-.reel {
-    width: 50px;
-    height: 50px;
-    background-color: #1a1a1a;
-    border: 2px solid #555;
-    border-radius: 50%;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.spoke {
-    width: 6px;
-    height: 100%;
-    background-color: #333;
-    position: absolute;
-}
-
+.reel { width: 60px; height: 60px; background-color: #1a1a1a; border: 2px solid #555; border-radius: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
+.spoke { width: 8px; height: 100%; background-color: #333; position: absolute; }
 .spoke:nth-child(2) { transform: rotate(60deg); }
 .spoke:nth-child(3) { transform: rotate(-60deg); }
+.playlist { margin: 10px 20px 0; padding: 0; list-style: none; height: 100px; overflow-y: auto; background-color: rgba(0,0,0,0.1); border: 1px solid #555; }
+.song-item { padding: 5px 10px; cursor: pointer; color: var(--text-color); font-size: 14px; transition: background-color 0.2s; }
+.song-item:hover { background-color: rgba(0,0,0,0.2); }
+.song-item.playing { background-color: var(--highlight-color); font-weight: bold; }
+#title { color: var(--text-color); text-align: center; margin: 10px 20px; font-size: 16px; font-weight: bold; text-transform: capitalize; }
+.progress-container { background: #222; border-radius: 5px; cursor: pointer; margin: 0 20px 10px; height: 8px; width: calc(100% - 40px); }
+.progress { background-color: var(--highlight-color); border-radius: 5px; height: 100%; width: 0%; transition: width 0.1s linear; }
+.controls { display: flex; justify-content: center; align-items: center; padding: 10px 20px; }
+.control-btn { background-color: var(--control-bg); border: 2px solid #222; border-radius: 5px; color: #ccc; font-size: 18px; padding: 10px 15px; margin: 0 5px; cursor: pointer; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); transition: background-color 0.3s; }
+.control-btn:hover { background-color: var(--control-hover); }
+.volume-slider { -webkit-appearance: none; appearance: none; width: 80px; height: 5px; background: #333; outline: none; border-radius: 3px; margin-left: 10px; }
+.volume-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px; background: #ccc; border-radius: 50%; cursor: pointer; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.reel.playing { animation: spin 2s linear infinite; }
 
-.playlist {
-    margin: 10px 20px 0;
-    padding: 0;
-    list-style: none;
-    height: 100px;
-    overflow-y: auto;
-    background-color: rgba(0,0,0,0.1);
-    border: 1px solid #555;
-}
-
-.song-item {
-    padding: 5px 10px;
-    cursor: pointer;
-    color: #222;
-    font-size: 14px;
-    transition: background-color 0.2s;
-}
-
-.song-item:hover {
-    background-color: rgba(0,0,0,0.2);
-}
-
-.song-item.playing {
-    background-color: #f5c518;
-    font-weight: bold;
-    animation: pulse 1.5s infinite;
-}
-
-#title {
-    color: #222;
-    text-align: center;
-    margin: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    text-transform: capitalize;
-}
-
-.progress-container {
-    background: #222;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 0 20px 10px;
-    height: 8px;
-    width: calc(100% - 40px);
-}
-
-.progress {
-    background-color: #f5c518;
-    border-radius: 5px;
-    height: 100%;
-    width: 0%;
-    transition: width 0.1s linear;
-}
-
-.controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px 20px;
-}
-
-.control-btn {
-    background-color: #333;
-    border: 2px solid #222;
-    border-radius: 5px;
-    color: #ccc;
-    font-size: 18px;
-    padding: 10px 15px;
-    margin: 0 5px;
-    cursor: pointer;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-}
-
-.control-btn:hover { background-color: #444; }
-
-.volume-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 80px;
-    height: 5px;
-    background: #333;
-    outline: none;
-    border-radius: 3px;
-    margin-left: 10px;
-}
-
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 15px;
-    height: 15px;
-    background: #ccc;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.reel.playing {
-  animation: spin 2s linear infinite;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(245, 197, 24, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(245, 197, 24, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(245, 197, 24, 0); }
-}
