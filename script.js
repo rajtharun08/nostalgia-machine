@@ -1,11 +1,17 @@
-// --- STATE ---
+// --- STATE & DATA ---
 let isPlaying = false;
 const songs = [
-    { name: 'music.mp3', image: 'music.jpg' },
-    { name: 'another-song.mp3', image: 'another-song.jpg' },
-    { name: 'a-third-song.mp3', image: 'a-third-song.jpg' }
+    { name: 'music.mp3', image: 'music.jpg', lyrics: [
+        [5, "This is the first line..."],
+        [10.5, "This line appears at 10.5 seconds."],
+        [16, "Making lyrics is easy!"],
+        [22, "Just add a timestamp and the text."],
+    ]},
+    { name: 'another-song.mp3', image: 'another-song.jpg', lyrics: [] },
+    { name: 'a-third-song.mp3', image: 'a-third-song.jpg', lyrics: [] }
 ];
 let songIndex = 0;
+let currentLyricIndex = -1;
 const themes = ['', 'theme-dark', 'theme-pop'];
 let currentThemeIndex = 0;
 let audioContext, audioSource, analyser;
@@ -28,6 +34,7 @@ const visualizerCanvas = document.getElementById('visualizer');
 const canvasCtx = visualizerCanvas.getContext('2d');
 const sfxClick = document.getElementById('sfx-click');
 const loadingIndicator = document.getElementById('loading-indicator');
+const lyricsLine = document.getElementById('lyrics-line');
 
 // --- FUNCTIONS ---
 function changeTheme() {
@@ -57,6 +64,8 @@ function loadSong(song) {
   bgImage.onerror = () => { bgImage.style.backgroundImage = ''; };
   const songItems = document.querySelectorAll('.song-item');
   songItems.forEach((item, index) => item.classList.toggle('playing', index === songIndex));
+  currentLyricIndex = -1;
+  lyricsLine.textContent = song.lyrics.length > 0 ? "..." : "(No lyrics for this song)";
 }
 
 function playSong() {
@@ -100,7 +109,25 @@ function handlePlayError(error) {
 
 function updateProgress(e) {
   const { duration, currentTime } = e.srcElement;
-  if (duration) progress.style.width = `${(currentTime / duration) * 100}%`;
+  if (duration) {
+    progress.style.width = `${(currentTime / duration) * 100}%`;
+    updateLyrics(currentTime);
+  }
+}
+
+function updateLyrics(currentTime) {
+    const currentSongLyrics = songs[songIndex].lyrics;
+    if (!currentSongLyrics || currentSongLyrics.length === 0) return;
+    let newLyricIndex = -1;
+    for (let i = 0; i < currentSongLyrics.length; i++) {
+        if (currentTime >= currentSongLyrics[i][0]) newLyricIndex = i;
+        else break;
+    }
+    if (newLyricIndex !== currentLyricIndex) {
+        currentLyricIndex = newLyricIndex;
+        const lyricText = currentLyricIndex !== -1 ? currentSongLyrics[currentLyricIndex][1] : "...";
+        lyricsLine.textContent = lyricText;
+    }
 }
 
 function setProgress(e) {
@@ -112,6 +139,7 @@ function setProgress(e) {
 
 function setVolume() {
   audio.volume = volumeSlider.value / 100;
+  localStorage.setItem('nostalgia-player-volume', audio.volume);
 }
 
 function setupAudioVisualizer() {
@@ -141,6 +169,21 @@ function renderVisualizerFrame(dataArray, bufferLength) {
     }
 }
 
+function loadInitialState() {
+    const params = new URLSearchParams(window.location.search);
+    const urlSongIndex = params.get('track');
+    if (urlSongIndex && urlSongIndex >= 0 && urlSongIndex < songs.length) {
+        songIndex = parseInt(urlSongIndex, 10);
+    } else {
+        const savedSongIndex = localStorage.getItem('nostalgia-player-songIndex');
+        if (savedSongIndex !== null) songIndex = parseInt(savedSongIndex, 10);
+    }
+    loadSong(songs[songIndex]);
+    const savedVolume = localStorage.getItem('nostalgia-player-volume');
+    volumeSlider.value = savedVolume ? parseFloat(savedVolume) * 100 : 75;
+    setVolume();
+}
+
 // --- EVENT LISTENERS ---
 themeBtn.addEventListener('click', changeTheme);
 playPauseBtn.addEventListener('click', () => { playSfx(); isPlaying ? pauseSong() : playSong(); });
@@ -148,6 +191,7 @@ prevBtn.addEventListener('click', prevSong);
 nextBtn.addEventListener('click', nextSong);
 audio.addEventListener('timeupdate', updateProgress);
 audio.addEventListener('ended', nextSong);
+audio.addEventListener('loadeddata', () => localStorage.setItem('nostalgia-player-songIndex', songIndex));
 progressContainer.addEventListener('click', setProgress);
 volumeSlider.addEventListener('input', setVolume);
 audio.addEventListener('waiting', () => showLoading(true));
@@ -169,6 +213,5 @@ playlist.addEventListener('click', (e) => {
 
 // --- INITIAL LOAD ---
 populatePlaylist();
-loadSong(songs[songIndex]);
-setVolume();
+loadInitialState();
 

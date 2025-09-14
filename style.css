@@ -45,7 +45,7 @@ body {
 }
 .cassette-player {
     width: 320px;
-    height: 520px;
+    height: 580px; /* Adjusted for lyrics */
     background-color: var(--player-bg);
     backdrop-filter: blur(10px);
     border-radius: 15px;
@@ -115,7 +115,34 @@ body {
 .spoke { width: 6px; height: 100%; background-color: #333; position: absolute; }
 .spoke:nth-child(2) { transform: rotate(60deg); }
 .spoke:nth-child(3) { transform: rotate(-60deg); }
-.playlist { margin: 10px 20px 0; padding: 0; list-style: none; height: 100px; overflow-y: auto; background-color: rgba(0,0,0,0.1); border: 1px solid #555; }
+
+.lyrics-container {
+    height: 40px;
+    margin: 10px 20px 0;
+    text-align: center;
+    color: var(--text-color);
+    font-size: 14px;
+    font-style: italic;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+.lyrics-container p {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.playlist {
+    margin: 10px 20px 0;
+    padding: 0;
+    list-style: none;
+    height: 100px;
+    overflow-y: auto;
+    background-color: rgba(0,0,0,0.1);
+    border: 1px solid #555;
+}
 .song-item { padding: 5px 10px; cursor: pointer; color: var(--text-color); font-size: 14px; transition: background-color 0.2s; }
 .song-item:hover { background-color: rgba(0,0,0,0.2); }
 .song-item.playing { background-color: var(--highlight-color); font-weight: bold; }

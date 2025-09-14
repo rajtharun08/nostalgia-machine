@@ -10,14 +10,16 @@
 <body>
     <div class="bg-image" id="bg-image"></div>
     <div class="cassette-player" id="player">
-        <div class="loading-indicator" id="loading-indicator">
-            <i class="fas fa-spinner fa-spin"></i>
-        </div>
+        <div class="loading-indicator" id="loading-indicator"><i class="fas fa-spinner fa-spin"></i></div>
         <button class="theme-btn" id="theme-btn"><i class="fas fa-palette"></i></button>
         <canvas id="visualizer" class="visualizer"></canvas>
         <div class="cassette-window">
             <div class="reel"><div class="spoke"></div><div class="spoke"></div><div class="spoke"></div></div>
             <div class="reel"><div class="spoke"></div><div class="spoke"></div><div class="spoke"></div></div>
+        </div>
+        <!-- LYRICS CONTAINER -->
+        <div id="lyrics-container" class="lyrics-container">
+            <p id="lyrics-line"></p>
         </div>
         <div id="playlist" class="playlist"></div>
         <h3 id="title">Song Title</h3>
